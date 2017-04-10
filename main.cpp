@@ -6,9 +6,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include <cstdlib>
-#include <string>
-#include <chrono>
 #include <cmath>
 using namespace std;
 
@@ -51,7 +48,7 @@ int main() {
     }
 
     // allocate space for the best set representing the indices of the points
-    bestSet = new int[n+1]; // added enough space to get back home..
+    bestSet = new int[n];
     // set the best set to be the list of indices, starting at 0
     for(i=0; i<n; i++) {
         bestSet[i] = i;
@@ -82,7 +79,7 @@ int main() {
     cout << "Minimum length is " << bestDist << endl;
 
     // print the elapsed time in seconds and fractions of seconds
-    int microseconds = chrono::duration_cast<chrono::microseconds>(end - start).count();
+    long long int microseconds = chrono::duration_cast<chrono::microseconds>(end - start).count();
     double seconds = microseconds / 1E6;
     cout << "elapsed time: " << seconds << " seconds" << endl;
 
@@ -97,24 +94,20 @@ int main() {
 void print_cycle(int n, point2D *P, int *seq) {
     // prints a sequence of 2D points in 2D plane, given the number of elements and a sequence of 2d points
     // n is the number of points, seq is a permutation over the set of indices, P is the array of coordinates
-    for (int i = 0; i < (n+1); i++) {
+    for (int i = 0; i < n; i++) {
         cout << "(" << P[seq[i]].x << "," << P[seq[i]].y << ")";
         if (i < (n)) {
             cout << ",";
         }
-    }
+    } cout << "(" << P[seq[0]].x << "," << P[seq[0]].y << ")";
     cout << endl;
 }
 
-float farthest(int n, point2D *P)
-// function to calculate the furthest distance between any two 2D points
-{
-    float max_dist = 0;
-    int i, j;
-    float dist;
-
-    for(i=0; i < n-1; i++)
-        for(j=0; j < n;j++) {
+float farthest(int n, point2D *P) {
+    // function to calculate the furthest distance between any two 2D points
+    float max_dist = 0, dist;
+    for(int i=0; i < n-1; i++)
+        for(int j=0; j < n;j++) {
             dist = abs(P[i].x - P[j].x) + abs(P[i].y - P[j].y);
             if (max_dist < dist)
                 max_dist = dist;
@@ -122,22 +115,24 @@ float farthest(int n, point2D *P)
     return max_dist;
 }
 
-void print_perm(int n, int *A, int sizeA, point2D *P, int *bestSet, float &bestDist)
-// function to generate the permutation of indices of the list of points
-{
+void print_perm(int n, int *A, int sizeA, point2D *P, int *bestSet, float &bestDist) {
+    // function to generate the permutation of indices of the list of points
     int i;
     float dist = 0;
 
     if (n == 1) {
         // we obtain a permutation so we compare it against the current shortest Hamiltonian cycle
-        A[sizeA] = A[0];
         for (i = 0; i < sizeA; i++) {
-            dist += abs(P[A[i]].x - P[A[i+1]].x) + abs(P[A[i]].y - P[A[i+1]].y);
+            if (i == (sizeA - 1)) {
+                dist += abs(P[A[i]].x - P[A[0]].x) + abs(P[A[i]].y - P[A[0]].y);
+            } else {
+                dist += abs(P[A[i]].x - P[A[i+1]].x) + abs(P[A[i]].y - P[A[i+1]].y);
+            }
         }
 
         if (dist < bestDist) {
             bestDist = dist;
-            for (int i = 0; i < sizeA + 1; i++) {
+            for (i = 0; i < sizeA + 1; i++) {
                 bestSet[i] = A[i];
             }
         }
